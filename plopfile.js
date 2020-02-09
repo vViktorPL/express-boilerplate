@@ -14,6 +14,7 @@ const getDirectories = source =>
 
 const routesLocation = path.join(__dirname, "src/app");
 const containerLocation = path.join(__dirname, "src/container.ts");
+const dbLocation = path.join(__dirname, "config/db.ts");
 
 const directories = getDirectories(`${routesLocation}/features`).filter(
   name => !DIRECTORIES_BLACKLIST.includes(NAME_REGEX.exec(name)[0]),
@@ -160,6 +161,15 @@ const updateRootRouter = [
   },
 ];
 
+const updateEntitiesConfig = [
+  {
+    type: "modify",
+    path: dbLocation,
+    pattern: /(\/\/ ENTITIES_SETUP)/,
+    template: '"./src/app/features/{{kebabCase name}}/models/",\n    $1',
+  },
+];
+
 const updateContainerRoutes = [
   {
     type: "modify",
@@ -181,14 +191,13 @@ const updateContainerModels = [
     path: containerLocation,
     pattern: /(\/\/ MODELS_IMPORTS)/,
     template:
-      'import { {{pascalCase name}}Model } from "./app/features/{{getModuleName module}}/models/{{kebabCase name}}.model";\n$1',
+      'import { {{pascalCase name}} } from "./app/features/{{getModuleName module}}/models/{{kebabCase name}}.model";\n$1',
   },
   {
     type: "modify",
     path: containerLocation,
     pattern: /(\/\/ MODELS_SETUP)/,
-    template:
-      "{{camelCase name}}Repository: awilix.asValue(dbConnection.getRepository({{pascalCase name}}Model)),\n    $1",
+    template: "{{camelCase name}}Repository: awilix.asValue(orm.em.getRepository({{pascalCase name}})),\n    $1",
   },
 ];
 
@@ -317,6 +326,7 @@ module.exports = plop => {
     prompts: [textPrompt("feature")],
     actions: [
       ...setupModuleStructure,
+      ...updateEntitiesConfig,
       createRouting,
       ...updateRootRouter,
       ...updateContainerRoutes,

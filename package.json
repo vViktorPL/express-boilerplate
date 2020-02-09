@@ -18,10 +18,8 @@
     "integration": "docker-compose run --rm js npm run integration-tests",
     "units": "docker-compose run --rm js npm run services-units",
     "shell": "docker-compose run --rm js sh",
-    "generate-migration": "docker-compose run --rm js ./node_modules/.bin/typeorm migration:generate -f ./build/config/db -n",
-    "run-migrations": "docker-compose run --rm js ./node_modules/.bin/typeorm migration:run -f ./build/config/db",
-    "revert-migration": "docker-compose run --rm js ./node_modules/.bin/typeorm migration:revert -f ./build/config/db",
-    "create-migration": "docker-compose run --rm js ./node_modules/.bin/typeorm migration:create -f ./build/config/db -n",
+    "generate-migration": "docker-compose run --rm js ./node_modules/.bin/mikro-orm migration:create",
+    "create-migration": "docker-compose run --rm js ./node_modules/.bin/mikro-orm migration:create -b",
     "plop": "plop"
   },
   "keywords": [],
@@ -35,12 +33,13 @@
     "helmet": "^3.21.2",
     "http-status-codes": "^1.4.0",
     "jsonwebtoken": "^8.5.1",
+    "mikro-orm": "^3.1.0",
     "pg": "^7.14.0",
     "redis": "^2.8.0",
+    "reflect-metadata": "^0.1.13",
     "supertest": "^4.0.2",
     "swagger-jsdoc": "^3.4.0",
     "swagger-ui-express": "^4.1.2",
-    "typeorm": "^0.2.20",
     "uuid": "^3.3.3",
     "winston": "^3.2.1"
   },
@@ -75,6 +74,14 @@
     "mocha": "^6.2.2",
     "plop": "^2.5.3",
     "prettier": "^1.19.1",
+    "ts-node": "^8.6.2",
     "typescript": "^3.7.2"
+  },
+  "mikro-orm": {
+    "useTsNode": true,
+    "configPaths": [
+      "./config/db.ts",
+      "./build/config/db.js"
+    ]
   }
 }

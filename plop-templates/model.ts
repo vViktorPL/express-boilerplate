@@ -1,20 +1,20 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { v4 } from "uuid";
+import { Entity, PrimaryKey, IdEntity } from "mikro-orm";
 
-interface {{pascalCase name}}ModelProps {
+interface {{pascalCase name}}Props {
   id: string;
 }
 
 @Entity({
-  name: "{{snakeCase name}}"
+  collection: "{{snakeCase name}}",
 })
-export class {{pascalCase name}}Model {
-
-  public static create(data: Partial<{{pascalCase name}}ModelProps>): {{pascalCase name}}Model {
-    const entity = new {{pascalCase name}}Model();
+export class {{pascalCase name}} implements IdEntity<{{pascalCase name}}> {
+  public static create(data: Partial<{{pascalCase name}}Props>): {{pascalCase name}} {
+    const entity = new {{pascalCase name}}();
     Object.assign(entity, data);
-    return entity
+    return entity;
   }
 
-  @PrimaryColumn()
-  id: string;
+  @PrimaryKey()
+  id: string = v4();
 }

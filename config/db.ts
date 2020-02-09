@@ -1,19 +1,26 @@
+import "reflect-metadata";
+
+import { ReflectMetadataProvider } from "mikro-orm";
 import { loadEnvs } from "./env";
 
 loadEnvs();
 
 const createDbConfigFromEnvs = (env: any) => ({
-  type: "postgres",
-  url: env.POSTGRES_URL,
-  synchronize: false,
-  logging: true,
-  entities: ["/app/build/src/**/*.model.js"],
-  migrations: ["/app/build/src/migrations/*"],
-  cli: {
-    migrationsDir: "src/migrations",
+  entitiesDirs: [
+    "./src/app/features/users/models/",
+    // ENTITIES_SETUP
+  ],
+  metadataProvider: ReflectMetadataProvider,
+  clientUrl: env.POSTGRES_URL,
+  dbName: env.POSTGRES_DB,
+  type: "postgresql",
+  debug: true,
+  migrations: {
+    path: "./src/migrations",
+    pattern: /^[\w-]+\d+\.js$/,
   },
 });
 
 const config = createDbConfigFromEnvs(process.env);
 
-export = config;
+export default config;

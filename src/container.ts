@@ -1,8 +1,8 @@
 import * as awilix from "awilix";
 import { AwilixContainer, Lifetime, Resolver } from "awilix";
 import { Application } from "express";
+import { MikroORM } from "mikro-orm";
 import * as http from "http";
-import { createConnection, ConnectionOptions } from "typeorm";
 import { makeApiConfig } from "../config/services";
 import { createApp } from "./app/app";
 import { createRouter } from "./app/router";
@@ -24,7 +24,7 @@ import EmailEventSubscriber from "./app/features/users/subscribers/email.subscri
 // SUBSCRIBERS_IMPORTS
 
 import { cacheClient } from "./tools/cache-client";
-import * as db from "../config/db";
+import db from "../config/db";
 
 const config = makeApiConfig();
 
@@ -43,8 +43,8 @@ export async function createContainer(): Promise<AwilixContainer> {
     cacheClient: awilix.asValue(cacheClient)
   });
 
-  const dbConnection = await createConnection(db as ConnectionOptions);
-  await dbConnection.runMigrations();
+  const orm = await MikroORM.init(db);
+  await orm.getMigrator().up(); 
 
   container.register({
     port: awilix.asValue(config.port),
@@ -64,12 +64,13 @@ export async function createContainer(): Promise<AwilixContainer> {
 
   container.register({
     usersRouting: awilix.asFunction(usersRouting),
-    // ROUTING_SETUP
+  // ROUTING_SETUP
   });
 
   container.register({
     errorHandler: awilix.asFunction(errorHandler),
     router: awilix.asFunction(createRouter),
+    orm: awilix.asValue(orm),
     queryBus: awilix.asClass(QueryBus).classic().singleton(),
     eventSubscribers: asArray([
       awilix.asClass(EmailEventSubscriber),

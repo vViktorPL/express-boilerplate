@@ -1,25 +1,18 @@
 import "mocha";
 import { use } from "chai";
 import * as chaiAsPromised from "chai-as-promised";
-import { createConnection, Connection, ConnectionOptions } from "typeorm";
+import { MikroORM } from "mikro-orm";
 import { createContainer } from "../src/container";
-import * as db from "../config/db";
 
 use(chaiAsPromised);
 
-const clearDb = async (_connection: Connection) => {};
+const clearDb = async (_connection: MikroORM) => {};
 
-before(async () => {
-  const dbConnection = await createConnection({
-    name: "integration-tests-connection",
-    ...(db as ConnectionOptions),
-    logging: false,
-  });
-
-  global.dbConnection = dbConnection;
-  await dbConnection.dropDatabase();
+before(async function() {
+  this.timeout(5000);
 
   global.container = await createContainer();
+  global.dbConnection = global.container.resolve("orm");
 });
 
 beforeEach(async () => {

@@ -1,4 +1,5 @@
 import * as awilix from "awilix";
+import { existsSync } from "fs";
 import { AwilixContainer, Lifetime, Resolver } from "awilix";
 import { Application } from "express";
 import { MikroORM } from "mikro-orm";
@@ -11,6 +12,7 @@ import { CommandBus } from "./shared/command-bus";
 import { winstonLogger } from "./shared/logger";
 import { QueryBus } from "./shared/query-bus";
 import { EventDispatcher } from "./shared/event-dispatcher";
+import { User } from "./app/features/users/models/user.model";
 // MODELS_IMPORTS
 
 import { usersRouting } from "./app/features/users/routing";
@@ -44,7 +46,9 @@ export async function createContainer(): Promise<AwilixContainer> {
   });
 
   const orm = await MikroORM.init(db);
-  await orm.getMigrator().up(); 
+  if (existsSync(db.migrations.path)) {
+    await orm.getMigrator().up(); 
+  }
 
   container.register({
     port: awilix.asValue(config.port),
@@ -86,6 +90,7 @@ export async function createContainer(): Promise<AwilixContainer> {
       awilix.asClass(UsersQueryHandler),
       // QUERY_HANDLERS_SETUP
     ]),
+    userRepository: awilix.asValue(orm.em.getRepository(User)),
     // MODELS_SETUP
   });
 

@@ -8,7 +8,7 @@ use(chaiAsPromised);
 
 const clearDb = async (_connection: MikroORM) => {};
 
-before(async function() {
+before(async function all() {
   this.timeout(5000);
 
   global.container = await createContainer();

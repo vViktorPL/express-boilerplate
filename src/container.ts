@@ -64,7 +64,7 @@ export async function createContainer(): Promise<AwilixContainer> {
 
   container.register({
     usersRouting: awilix.asFunction(usersRouting),
-  // ROUTING_SETUP
+    // ROUTING_SETUP
   });
 
   container.register({

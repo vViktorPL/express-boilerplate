@@ -13,4 +13,5 @@ build
 docker/dev/datastore
 config/all.override.yaml
 tmp
+temp
 /.npmrc

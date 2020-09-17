@@ -1,18 +1,11 @@
-import { Request, Response } from "express";
-import { celebrate, Joi } from "celebrate";
+import { Response } from "express";
 import { QueryBus } from "../../../../shared/query-bus";
 import { UsersQuery } from "../queries/users";
+import { ActionHandler, Response as Res } from "../../../../shared/actions-decorators/request-decorator";
 
 export interface UsersActionDependencies {
   queryBus: QueryBus;
 }
-
-export const usersActionValidation = celebrate(
-  {
-    headers: Joi.object(),
-  },
-  { abortEarly: false },
-);
 
 /**
  * @swagger
@@ -28,13 +21,16 @@ export const usersActionValidation = celebrate(
  *       500:
  *         description: Internal Server Error
  */
-const usersAction = ({ queryBus }: UsersActionDependencies) => async (req: Request, res: Response) => {
-  const queryResult = await queryBus.execute(
-    new UsersQuery({
-      // query props
-    }),
-  );
-  return res.json(queryResult.result);
-};
+export default class UsersAction {
+  constructor(private dependencies: UsersActionDependencies) {}
 
-export default usersAction;
+  @ActionHandler()
+  async invoke(@Res response: Response) {
+    const queryResult = await this.dependencies.queryBus.execute(
+      new UsersQuery({
+        // query props
+      }),
+    );
+    return response.json(queryResult.result);
+  }
+}

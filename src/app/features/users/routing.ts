@@ -1,20 +1,20 @@
 import * as express from "express";
 
-import { loginActionValidation } from "./actions/login.action";
-import { usersActionValidation } from "./actions/users.action";
+import LoginAction from "./actions/login.action";
+import UsersAction from "./actions/users.action";
 // VALIDATION_IMPORTS
 
 export interface UsersRoutingDependencies {
-  loginAction: express.RequestHandler;
-  usersAction: express.RequestHandler;
+  loginAction: any;
+  usersAction: any;
   // ACTIONS_IMPORTS
 }
 
 export const usersRouting = (actions: UsersRoutingDependencies) => {
   const router = express.Router();
 
-  router.post("/login", [loginActionValidation], actions.loginAction);
-  router.get("/users", [usersActionValidation], actions.usersAction);
+  router.post("/login/:id", [], actions.loginAction.invoke.bind(actions.loginAction));
+  router.get("/users", [], actions.usersAction.invoke.bind(actions.usersAction));
   // ACTIONS_SETUP
 
   return router;

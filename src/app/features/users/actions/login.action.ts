@@ -1,20 +1,23 @@
 import { Request, Response } from "express";
-import { celebrate, Joi } from "celebrate";
 import { CommandBus } from "../../../../shared/command-bus";
 import { LoginCommand } from "../commands/login.command";
+import {
+  ActionHandler,
+  Body,
+  Path,
+  Query,
+  Headers,
+  Request as Req,
+  Response as Res,
+} from "../../../../shared/actions-decorators/request-decorator";
+import { LoginRequestBody } from "../dtos/login/login-request-body";
+import { LoginRequestQuery } from "../dtos/login/login-request-query";
+import { LoginRequestParams } from "../dtos/login/login-request-params";
+import { LoginRequestHeaders } from "../dtos/login/login-request-headers";
 
 export interface LoginActionDependencies {
   commandBus: CommandBus;
 }
-
-export const loginActionValidation = celebrate(
-  {
-    body: Joi.object().keys({
-      authToken: Joi.string().required(),
-    }),
-  },
-  { abortEarly: false },
-);
 
 /**
  * @swagger
@@ -48,14 +51,30 @@ export const loginActionValidation = celebrate(
  *       500:
  *         description: Internal Server Error
  */
-const loginAction = ({ commandBus }: LoginActionDependencies) => async (req: Request, res: Response) => {
-  const result = await commandBus.execute(
-    new LoginCommand({
-      authToken: req.body.authToken,
-    }),
-  );
+export default class LoginAction {
+  constructor(private dependencies: LoginActionDependencies) {}
 
-  return res.json(result);
-};
+  @ActionHandler()
+  async invoke(
+    @Body body: LoginRequestBody,
+    @Query query: LoginRequestQuery,
+    @Path path: LoginRequestParams,
+    @Headers headers: LoginRequestHeaders,
+    @Res response: Response,
+    @Req req: Request,
+  ) {
+    const result = await this.dependencies.commandBus.execute(
+      new LoginCommand({
+        authToken: body.authToken,
+      }),
+    );
 
-export default loginAction;
+    return response.json({
+      body,
+      result,
+      query,
+      path,
+      headers,
+    });
+  }
+}

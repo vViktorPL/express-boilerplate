@@ -2,6 +2,7 @@ import { Server } from "http";
 import { createContainer } from "./container";
 import { Logger } from "./shared/logger";
 import "express-async-errors";
+import "reflect-metadata";
 
 (async () => {
   const container = await createContainer();

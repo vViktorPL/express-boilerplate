@@ -1,4 +1,6 @@
 import { validateOrReject } from "class-validator";
+import { Request, Response } from "express";
+import { ValidationError } from "../../errors/validation.error";
 const MAPPED_PARAMS = "mapped-params";
 
 const PARAM_TYPES = {
@@ -59,37 +61,25 @@ export function ActionHandler() {
     const originalMethod = descriptor.value;
     const mappedParamsKey = `${MAPPED_PARAMS}-${propertyKey}`;
     const types = Reflect.getMetadata("design:paramtypes", target, propertyKey);
-    const params = Reflect.getMetadata(mappedParamsKey, target, propertyKey);
+
     descriptor.value = async function override(...args: any[]) {
-      const mappedArgs = types.map((value: any, index: number) => {
-        const type = types[index];
-        const typeName = `${type.prototype.constructor.name}${index}`;
-        if (params[typeName]) {
-          console.log(params[typeName].type);
-          switch (params[typeName].type) {
-            case PARAM_TYPES.BODY:
-              return type.create(args[0].body);
-            case PARAM_TYPES.QUERY:
-              return type.create(args[0].qeury);
-            case PARAM_TYPES.PATH:
-              return type.create(args[0].params);
-            case PARAM_TYPES.HEADERS:
-              return type.create(args[0].headers);
-            case PARAM_TYPES.REQUEST:
-              return args[0];
-            case PARAM_TYPES.RESPONSE:
-              return args[1];
-            default:
-              return undefined;
-          }
-        } else {
-          return args[index];
+      const mappedArgs = args.map((value: any, index: number) => {
+        switch (index) {
+          case 2:
+          case 3:
+          case 4:
+          case 5:
+            return types[index].create(value);
+          default:
+            return value;
         }
       });
 
       return Promise.all(mappedArgs.map((mappedArg: any) => validateOrReject(mappedArg)))
         .then(() => originalMethod.apply(this, mappedArgs))
-        .catch((err) => args[2](err));
+        .catch((errors) => {
+          throw new ValidationError(errors);
+        });
     };
 
     return descriptor;

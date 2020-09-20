@@ -5,6 +5,7 @@ import { AppError } from "../errors/app.error";
 import { HttpError } from "../errors/http.error";
 import { Logger } from "../shared/logger";
 import { Translation } from "../shared/translation/translation";
+import { ValidationError } from "../errors/validation.error";
 
 export const celebrateToValidationError = (errors: any): { [key: string]: Translation } => {
   const errorsArray: any = errors.joi.details.map((error: { path: string[]; type: string }) => {
@@ -27,6 +28,13 @@ export const errorHandler = ({
   restrictFromProduction: Function;
 }) => <T>(err: Error, req: Request, res: Response, _next: NextFunction) => {
   logger.error(err.toString());
+
+  if (err instanceof ValidationError) {
+    return res.status(BAD_REQUEST).json({
+      error: err.validations,
+      stack: restrictFromProduction(err.stack),
+    });
+  }
 
   if (isCelebrate(err)) {
     try {

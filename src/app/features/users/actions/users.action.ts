@@ -1,7 +1,8 @@
 import { Response } from "express";
 import { QueryBus } from "../../../../shared/query-bus";
 import { UsersQuery } from "../queries/users";
-import { ActionHandler, Response as Res } from "../../../../shared/actions-decorators/request-decorator";
+import { ActionHandler } from "../../../../shared/action/request-decorator";
+import { Action } from "../../../../shared/action/wrapper";
 
 export interface UsersActionDependencies {
   queryBus: QueryBus;
@@ -21,11 +22,11 @@ export interface UsersActionDependencies {
  *       500:
  *         description: Internal Server Error
  */
-export default class UsersAction {
+export default class UsersAction implements Action {
   constructor(private dependencies: UsersActionDependencies) {}
 
   @ActionHandler()
-  async invoke(@Res response: Response) {
+  async invoke(response: Response) {
     const queryResult = await this.dependencies.queryBus.execute(
       new UsersQuery({
         // query props

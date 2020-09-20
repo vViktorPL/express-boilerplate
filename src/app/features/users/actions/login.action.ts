@@ -1,19 +1,12 @@
 import { Request, Response } from "express";
 import { CommandBus } from "../../../../shared/command-bus";
 import { LoginCommand } from "../commands/login.command";
-import {
-  ActionHandler,
-  Body,
-  Path,
-  Query,
-  Headers,
-  Request as Req,
-  Response as Res,
-} from "../../../../shared/actions-decorators/request-decorator";
+import { ActionHandler } from "../../../../shared/action/request-decorator";
 import { LoginRequestBody } from "../dtos/login/login-request-body";
 import { LoginRequestQuery } from "../dtos/login/login-request-query";
 import { LoginRequestParams } from "../dtos/login/login-request-params";
 import { LoginRequestHeaders } from "../dtos/login/login-request-headers";
+import { Action } from "../../../../shared/action/wrapper";
 
 export interface LoginActionDependencies {
   commandBus: CommandBus;
@@ -51,17 +44,18 @@ export interface LoginActionDependencies {
  *       500:
  *         description: Internal Server Error
  */
-export default class LoginAction {
+export default class LoginAction
+  implements Action<LoginRequestBody, LoginRequestQuery, LoginRequestParams, LoginRequestHeaders> {
   constructor(private dependencies: LoginActionDependencies) {}
 
   @ActionHandler()
   async invoke(
-    @Body body: LoginRequestBody,
-    @Query query: LoginRequestQuery,
-    @Path path: LoginRequestParams,
-    @Headers headers: LoginRequestHeaders,
-    @Res response: Response,
-    @Req req: Request,
+    response: Response,
+    _: Request,
+    body: LoginRequestBody,
+    query: LoginRequestQuery,
+    params: LoginRequestParams,
+    headers: LoginRequestHeaders,
   ) {
     const result = await this.dependencies.commandBus.execute(
       new LoginCommand({
@@ -73,7 +67,7 @@ export default class LoginAction {
       body,
       result,
       query,
-      path,
+      params,
       headers,
     });
   }

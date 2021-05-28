@@ -1,15 +1,10 @@
 import { Event, EventSubscriberInterface, EventSubscribersMeta } from "@tshio/event-dispatcher";
-import { Logger } from "@tshio/logger";
-
-type EmailEventSubscriberDependencies = {
-  logger: Logger;
-};
 
 /**
  * Example subscriber
  */
 export default class EmailEventSubscriber implements EventSubscriberInterface {
-  public constructor(private dependencies: EmailEventSubscriberDependencies) {}
+  public constructor(private dependencies: Dependencies) {}
 
   /**
    * Register events and listeners

@@ -1,13 +1,8 @@
 import { Request, Response } from "express";
 import { ApiOperationGet, ApiPath } from "swagger-express-ts";
 import { celebrate, Joi } from "celebrate";
-import { QueryBus } from "@tshio/query-bus";
 import { UsersQuery } from "../queries/users";
 import { Action } from "../../../../shared/http/types";
-
-export interface UsersActionDependencies {
-  queryBus: QueryBus;
-}
 
 export const usersActionValidation = celebrate(
   {
@@ -21,7 +16,7 @@ export const usersActionValidation = celebrate(
   name: "Users",
 })
 class UsersAction implements Action {
-  constructor(private dependencies: UsersActionDependencies) {}
+  constructor(private dependencies: Dependencies) {}
 
   @ApiOperationGet({
     path: "/example/example",

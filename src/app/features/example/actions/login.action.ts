@@ -1,13 +1,8 @@
 import { Request, Response } from "express";
 import { ApiOperationPost, ApiPath } from "swagger-express-ts";
 import { celebrate, Joi } from "celebrate";
-import { CommandBus } from "@tshio/command-bus";
 import { LoginCommand } from "../commands/login.command";
 import { Action } from "../../../../shared/http/types";
-
-export interface LoginActionDependencies {
-  commandBus: CommandBus;
-}
 
 export const loginActionValidation = celebrate(
   {
@@ -23,7 +18,7 @@ export const loginActionValidation = celebrate(
   name: "Users",
 })
 class LoginAction implements Action {
-  constructor(private dependencies: LoginActionDependencies) {}
+  constructor(private dependencies: Dependencies) {}
 
   @ApiOperationPost({
     path: "/example/login",

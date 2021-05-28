@@ -1,4 +1,4 @@
-import { AwilixContainer, asValue, asClass, asFunction } from "awilix";
+import { asValue, asClass, asFunction } from "awilix";
 import { QueryBus } from "@tshio/query-bus";
 import { CommandBus } from "@tshio/command-bus";
 import { EventDispatcher } from "@tshio/event-dispatcher";
@@ -6,8 +6,9 @@ import { createLogger, restrictFromProduction } from "@tshio/logger";
 import { AppConfig } from "../config/app";
 import { cacheClient } from "../tools/cache-client";
 import { createRouter } from "../app/router";
+import { Container } from "../container";
 
-export async function registerCommonDependencies(appConfig: AppConfig, container: AwilixContainer) {
+export const registerCommonDependencies = (appConfig: AppConfig) => <T>(container: Container<T>) =>
   container.register({
     restrictFromProduction: asValue(restrictFromProduction(appConfig.env)),
     port: asValue(appConfig.port),
@@ -19,6 +20,3 @@ export async function registerCommonDependencies(appConfig: AppConfig, container
     commandBus: asClass(CommandBus).classic().singleton(),
     eventDispatcher: asClass(EventDispatcher).classic().singleton(),
   });
-
-  return container;
-}

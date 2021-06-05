@@ -8,6 +8,7 @@ import { usersActionValidation } from "./actions/users.action";
 export interface UsersRoutingDependencies {
   loginAction: Action;
   usersAction: Action;
+  starsAction: Action;
   // ACTIONS_IMPORTS
 }
 
@@ -16,6 +17,7 @@ export const usersRouting = (actions: UsersRoutingDependencies) => {
 
   router.post("/login", [loginActionValidation], actions.loginAction.invoke.bind(actions.loginAction));
   router.get("/example", [usersActionValidation], actions.usersAction.invoke.bind(actions.usersAction));
+  router.get("/stars", actions.starsAction.invoke.bind(actions.starsAction));
   // ACTIONS_SETUP
 
   return router;

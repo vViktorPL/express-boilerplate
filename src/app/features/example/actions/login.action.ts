@@ -1,22 +1,22 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { ApiOperationPost, ApiPath } from "swagger-express-ts";
-import { celebrate, Joi } from "celebrate";
 import { CommandBus } from "@tshio/command-bus";
+import { object, string } from "smartly-typed-decoder";
 import { LoginCommand } from "../commands/login.command";
-import { Action } from "../../../../shared/http/types";
+import { Action, ActionRequest, BodyDocs } from "../../../../shared/http/types";
+import { decodeActionInput } from "../../../../middleware/decode-action-input";
 
 export interface LoginActionDependencies {
   commandBus: CommandBus;
 }
 
-export const loginActionValidation = celebrate(
-  {
-    body: Joi.object().keys({
-      authToken: Joi.string().required(),
-    }),
-  },
-  { abortEarly: false },
-);
+const decoder = object({
+  body: object({
+    authToken: string,
+  }),
+});
+
+export const loginActionValidation = decodeActionInput(decoder);
 
 @ApiPath({
   path: "/api",
@@ -36,7 +36,7 @@ class LoginAction implements Action {
             required: true,
           },
         },
-      },
+      } as BodyDocs<typeof decoder>,
     },
     responses: {
       200: {
@@ -50,7 +50,7 @@ class LoginAction implements Action {
       },
     },
   })
-  async invoke({ body }: Request, res: Response) {
+  async invoke({ body }: ActionRequest<typeof decoder>, res: Response) {
     const result = await this.dependencies.commandBus.execute(
       new LoginCommand({
         authToken: body.authToken,
